@@ -121,3 +121,5 @@ Rust-ltss/
 MIT License  
 모든 기여자는 “Sustain without decay” 철학에 동의하는 것으로 간주됩니다.
 
+
+> 🗓 **2026년 중 공식 오픈 예정**
