@@ -1,3 +1,13 @@
+# 🦀 Rust-ltss
+**Rust Long-Term-Sustain-System with R3C**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Build Status](https://github.com/0200134/Rust-ltss/actions/workflows/build.yml/badge.svg)](https://github.com/0200134/Rust-ltss/actions)
+[![Platform](https://img.shields.io/badge/platform-Linux%20|%20macOS%20|%20Windows-blue)]()
+[![Language](https://img.shields.io/badge/language-Rust%20%2B%20C%2B%2B%20%2B%20NASM-orange)]()
+[![Philosophy](https://img.shields.io/badge/philosophy-Sustain%20Without%20Decay-brightgreen)]()
+[![Powered by R3C](https://img.shields.io/badge/powered%20by-R3C-blueviolet)](https://github.com/0200134/r3c)
+[![Version](https://img.shields.io/badge/version-0.1.0--alpha-lightgrey)]()
 
 # 🦀 Rust-ltss
 **Rust Long-Term-Sustain-System with R3C**
