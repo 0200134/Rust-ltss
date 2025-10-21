@@ -9,8 +9,7 @@
 [![Powered by R3C](https://img.shields.io/badge/powered%20by-R3C-blueviolet)](https://github.com/0200134/r3c)
 [![Version](https://img.shields.io/badge/version-0.1.0--alpha-lightgrey)]()
 
-# 🦀 Rust-ltss
-**Rust Long-Term-Sustain-System with R3C**
+
 
 > _“Beyond LLVM. Sustain the Rust ecosystem with independent lifecycles.”_
 
