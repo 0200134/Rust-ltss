@@ -135,7 +135,216 @@ Rust-LTSS powers the R3C LLVM-Zero Ecosystem:
 
 ---
 
-⚖️ License
 
-MIT License © R3C Foundation
-Open. Stable. Deterministic.
+
+👤 User Guide — Rust-LTSS Usage and Policy
+
+
+R3C Rust-LTSS provides a frozen, long-term Rust toolchain for developers and researchers who require deterministic, stable, and reproducible environments.
+
+This guide explains how to install, verify, and operate within the LTSS framework.
+
+
+
+🧩 1. Setup
+
+
+
+
+
+
+Clone the repository
+
+
+git clone https://github.com/r3c-foundation/rust-ltss.git
+cd rust-ltss
+
+
+
+
+
+
+
+Automatic toolchain selection
+
+The Rust toolchain is locked via rust-toolchain.toml.
+
+No manual rustup setup is required.
+
+
+[toolchain]
+channel = "1.70.0"
+components = ["rust-src", "rustfmt", "clippy"]
+profile = "minimal"
+
+
+
+
+
+
+
+Verify the environment
+
+
+rustc --version
+# rustc 1.70.0 (90c541806 2023-05-31)
+
+
+
+
+
+
+
+Build
+
+
+cargo build --release
+
+
+
+Build results will be stored in target/ltss/.
+
+
+
+
+
+
+
+🧠 2. Guidelines for Users
+
+
+
+
+Guideline
+Description
+
+
+
+
+🔒 Immutable Toolchain
+Never upgrade Rust beyond 1.70.0 within this repository.
+
+
+🧾 Integrity First
+Always verify builds using the provided SHA256SUMS.txt file.
+
+
+⚙️ Cross-Platform Consistency
+Builds must behave identically on Linux, macOS, and Windows.
+
+
+🧱 No External Dependencies
+Avoid crates or toolchains that force new Rust versions.
+
+
+🧩 Ecosystem Alignment
+Use Rust-LTSS only within R3C, cpppm, and Beyond-LLVM layers.
+
+
+
+
+
+🧾 3. Release Workflow
+
+
+Rust-LTSS uses automated CI releases through GitHub Actions.
+
+
+
+
+Type
+Tag Example
+Description
+
+
+
+
+Stable
+r3c-rust1.70-ltss-v2025.01
+Annual verified release
+
+
+Nightly
+r3c-rust1.70-nightly
+Experimental branch for testing
+
+
+
+
+Each release includes:
+
+
+
+
+Precompiled binaries for Linux/macOS/Windows
+
+
+SHA256 integrity file
+
+
+Generated tag + timestamp
+
+
+
+
+
+🧭 4. Long-Term Policy
+
+
+
+
+Support Level
+Duration
+Scope
+
+
+
+
+Full Support
+2025–2030
+Regular rebuilds, minor fixes
+
+
+Extended Support
+2030–2035
+Security updates, re-validation
+
+
+Archive
+2035+
+Frozen, read-only reference
+
+
+
+
+
+⚖️ 5. License and Contribution
+
+
+
+
+Licensed under MIT.
+
+
+Contributions are allowed only if they do not alter the Rust toolchain version.
+
+
+Pull requests must include updated checksum verification (SHA256SUMS.txt).
+
+
+
+
+
+🧭 Summary
+
+
+
+
+R3C Rust-LTSS is a long-term, reproducible Rust base that enables stable compiler research and sustainable embedded builds.
+
+
+“Freeze once. Sustain forever.”
+
+
+
+
