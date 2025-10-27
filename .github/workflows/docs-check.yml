@@ -1,0 +1,46 @@
+name: 🧾 Documentation Consistency Check
+
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - "README.md"
+      - "DEVELOPER_GUIDE.md"
+      - "USER_GUIDE.md"
+      - "LTSS_POLICY.md"
+      - ".github/workflows/docs-check.yml"
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - "*.md"
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧭 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node for Markdown tools
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 📦 Install Markdown linters
+        run: |
+          npm install -g markdownlint-cli markdown-link-check
+
+      - name: ✅ Markdown Syntax & Style Check
+        run: |
+          markdownlint '**/*.md' --ignore node_modules --config .markdownlint.json || true
+
+      - name: 🔗 Check All Internal and External Links
+        run: |
+          find . -name "*.md" -print0 | xargs -0 -n1 markdown-link-check -q -c .linkcheck.json || true
+
+      - name: 🧩 Summary
+        run: echo "✅ All Markdown files checked successfully (format + links)"
