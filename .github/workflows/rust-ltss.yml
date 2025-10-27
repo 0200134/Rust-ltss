@@ -1,0 +1,51 @@
+---
+
+## ⚙️ **`.github/workflows/rust-ltss.yml`**
+
+```yaml
+name: 🦀 R3C Rust LTSS Release
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧭 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🦀 Setup Rust (LTSS)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.70.0
+
+      - name: 🧱 Build R3C Rust-LTSS
+        run: cargo build --release
+
+      - name: 💾 Generate SHA256SUMS
+        run: |
+          mkdir -p dist
+          cp target/release/* dist/
+          cd dist
+          sha256sum * > SHA256SUMS.txt
+          cd ..
+
+      - name: 🏷️ Auto Tag & Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}-rust1.70-ltss
+          name: "R3C Rust-LTSS Build #${{ github.run_number }}"
+          files: |
+            dist/*
+            dist/SHA256SUMS.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
