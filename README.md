@@ -357,3 +357,8 @@ R3C Rust-LTSS is a long-term, reproducible Rust base that enables stable compile
 > For long-term contributors and maintainers:  
 > Follow the LTSS principles before merging or releasing stable versions.
 
+## 🧭 Extended Documentation
+
+- [Vision](./VISION.md)
+- [Roadmap](./ROADMAP.md)
+- [Ecosystem Valuation Report](./ECOSYSTEM_VALUE.md)
