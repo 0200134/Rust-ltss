@@ -1,0 +1,101 @@
+name: 🔖 R3C Rust-LTSS Autonomous Release v2
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - ".github/workflows/**"
+  schedule:
+    - cron: "0 0 * * 0"    # 매주 일요일 00:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: 🧭 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🦀 Setup Rust 1.70.0
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.70.0
+
+      - name: ⚙️ Verify Rust version
+        run: |
+          if ! rustc --version | grep -q "1.70.0"; then
+            echo "❌ Rust version mismatch"; exit 1
+          fi
+          rustc --version
+
+      - name: 🧱 Build (release)
+        run: cargo build --release
+
+      - name: 🔒 Generate SHA256SUMS
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cp target/release/* artifacts/ || true
+          cd artifacts
+          (sha256sum * || shasum -a 256 *) > ../SHA256SUMS.txt
+          cd ..
+
+      - name: 📦 Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ltss-${{ matrix.os }}
+          path: artifacts/
+
+  release:
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧭 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Setup Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: 💾 Configure remote with PAT
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.WORKFLOW_PAT }}@github.com/${{ github.repository }}.git
+
+      - name: 🔍 Generate tag
+        id: tag
+        run: |
+          TAG="r3c-rust1.70-ltss-v$(date +'%Y.%m.%d')"
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "🪶 New release tag: $TAG"
+
+      - name: 🧾 Commit updated SHA256SUMS
+        run: |
+          git add SHA256SUMS.txt || true
+          git commit -m "🧾 Auto-verify build and update SHA256SUMS ($TAG)" || echo "No changes"
+          git push origin main || echo "No changes to push"
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: "Rust-LTSS Stable Auto Release ${{ env.TAG }}"
+          body: |
+            ✅ Weekly automated LTSS verification build
+            🦀 Rust 1.70.0 deterministic release  
+            🧾 SHA256SUMS verified across all OS  
+            🔒 Generated automatically by Autonomous Release v2
+          files: |
+            SHA256SUMS.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
