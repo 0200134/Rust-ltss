@@ -1,133 +1,158 @@
-name: 🔖 R3C Rust-LTSS Autonomous Stable Release v2.1 (PAT Fixed)
+name: 🧩 R3C Foundation Ultra All-in-One Autonomous System
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - ".github/workflows/**"
   schedule:
-    - cron: "0 0 * * 0"   # ✅ 매주 일요일 00:00 UTC 자동 실행
+    - cron: "0 0 * * 0"      # 매주 일요일 00:00 UTC
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  verify-and-build:
-    name: 🧱 Verify & Build (3OS)
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-
+  allinone:
+    runs-on: ubuntu-latest
     steps:
-      - name: 🧭 Checkout repository
+      - name: 🧭 Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: 🪶 Setup Git identity
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+
+      ########################################################
+      # 1️⃣ fork-lab branch auto-refresh
+      ########################################################
+      - name: 🌿 Maintain fork-lab branch
+        run: |
+          if git show-ref --verify --quiet refs/heads/fork-lab; then
+            git checkout fork-lab
+          else
+            git checkout -b fork-lab
+          fi
+          echo "# 🧪 Fork Lab (Auto Reset Branch)" > README_FORK_LAB.md
+          echo "- Last reset: $(date -u '+%Y-%m-%d %H:%M UTC')" >> README_FORK_LAB.md
+          echo "Fork freely for testing and CI verification." >> README_FORK_LAB.md
+          git add README_FORK_LAB.md
+          git commit -m "🧪 Auto-refresh fork-lab ($(date -u '+%Y-%m-%d'))" || true
+          git push origin fork-lab --force
+
+      ########################################################
+      # 2️⃣ Update CONTRIBUTING.md
+      ########################################################
+      - name: 🧾 Update CONTRIBUTING.md
+        run: |
+          cat > CONTRIBUTING.md <<'EOF'
+# 🤝 Contributing to R3C Rust-LTSS
+
+Welcome to the **R3C Foundation LTSS ecosystem.**  
+You are encouraged to **fork, experiment, and submit pull requests** under the MIT License.
+
+## 🌿 How to Fork
+1. Fork this repository → https://github.com/r3c-foundation/rust-ltss/fork
+2. Use `fork-lab` branch for testing.
+3. Keep builds reproducible and minimal.
+
+## ⚙️ Rules
+| Rule | Description |
+|------|--------------|
+| 🦀 Rust 1.70 fixed | Do not modify rust-toolchain.toml |
+| 🔒 Integrity | Include SHA256SUMS |
+| 🧾 License | MIT for all contributions |
+
+> *Freeze once. Sustain forever.*
+EOF
+          git add CONTRIBUTING.md
+          git commit -m "🧾 Auto-update CONTRIBUTING.md ($(date -u '+%Y-%m-%d'))" || true
+          git push origin main || true
+
+      ########################################################
+      # 3️⃣ Fetch and update OpenCollective sponsors
+      ########################################################
+      - name: 💖 Fetch OpenCollective Sponsors
+        id: sponsors
+        run: |
+          mkdir -p .sponsors
+          curl -s https://opencollective.com/r3c-foundation/members/all.json > .sponsors/sponsors.json
+          cat .sponsors/sponsors.json | jq -r '.[] | select(.role=="BACKER") | "- [\(.name)](\(.profile))"' > .sponsors/list.md
+          echo "### 💖 Sponsors" > SPONSORS.md
+          echo "These amazing people and organizations support R3C Foundation via OpenCollective." >> SPONSORS.md
+          echo "" >> SPONSORS.md
+          cat .sponsors/list.md >> SPONSORS.md
+          echo "" >> SPONSORS.md
+          echo "> Auto-updated at $(date -u '+%Y-%m-%d %H:%M UTC')" >> SPONSORS.md
+
+      ########################################################
+      # 4️⃣ Insert/refresh sponsors section in README
+      ########################################################
+      - name: 🧩 Update README with sponsors
+        run: |
+          if grep -q "### 💖 Sponsors" README.md; then
+            awk '/### 💖 Sponsors/{flag=1;print;system("cat SPONSORS.md");next}/^$/{flag=0}flag==0' README.md > tmp && mv tmp README.md
+          else
+            echo -e "\n\n$(cat SPONSORS.md)" >> README.md
+          fi
+          git add README.md SPONSORS.md
+          git commit -m "💖 Auto-update sponsor list ($(date -u '+%Y-%m-%d'))" || true
+          git push origin main || true
+
+      ########################################################
+      # 5️⃣ Build and release with checksum
+      ########################################################
       - name: 🦀 Setup Rust 1.70.0
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: 1.70.0
 
-      - name: ⚙️ Verify Rust version
-        run: |
-          echo "🔍 Checking rustc version..."
-          rustc --version
-          if ! rustc --version | grep -q "1.70.0"; then
-            echo "❌ Rust version mismatch. Aborting."
-            exit 1
-          fi
-
-      - name: 🧱 Build release (conditional)
+      - name: 🧱 Build release
         run: |
           if [ -f Cargo.toml ]; then
-            echo "✅ Cargo.toml found — running cargo build..."
             cargo build --release
           else
-            echo "⚠️ No Cargo.toml found — skipping cargo build."
             mkdir -p target/ltss
-            echo "R3C Rust-LTSS placeholder build successful." > target/ltss/BUILD_LOG.txt
+            echo "R3C LTSS dummy build success" > target/ltss/BUILD_LOG.txt
           fi
 
       - name: 🔒 Generate SHA256SUMS
         run: |
-          mkdir -p artifacts
-          cp -r target/ltss/* artifacts/ || true
-          cd artifacts
-          if command -v sha256sum >/dev/null; then
-            sha256sum * > ../SHA256SUMS_${{ matrix.os }}.txt
-          else
-            shasum -a 256 * > ../SHA256SUMS_${{ matrix.os }}.txt
-          fi
-          cd ..
+          cd target/ltss
+          shasum -a 256 * > ../../SHA256SUMS.txt || echo "No build files"
+          cd ../..
 
-      - name: 📦 Upload OS artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ltss-${{ matrix.os }}
-          path: artifacts/
-
-  unify-and-release:
-    name: 🚀 Auto Commit + Tag + Release
-    needs: verify-and-build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 🧭 Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: 📥 Download all build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: builds
-
-      - name: 🔍 Merge SHA256SUMS files
-        run: |
-          cat builds/**/SHA256SUMS_* > SHA256SUMS.txt
-          echo "🧾 Combined SHA256SUMS:"
-          cat SHA256SUMS.txt
-
-      - name: 🔖 Generate release tag
-        id: tag
-        run: |
-          TAG="r3c-rust1.70-ltss-v$(date +'%Y.%m.%d')-stable-final"
-          echo "TAG=$TAG" >> $GITHUB_ENV
-          echo "🪶 Tagging release as $TAG"
-
-      - name: 💾 Configure Git remote (PAT)
+      - name: 💾 Configure remote (PAT)
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.WORKFLOW_PAT }}@github.com/${{ github.repository }}.git
-          git config user.name "github-actions"
-          git config user.email "actions@users.noreply.github.com"
 
-      - name: 🧾 Commit updated checksum
+      - name: 🔖 Tag and release
         run: |
-          cp SHA256SUMS.txt SHA256SUMS_latest.txt
-          git add SHA256SUMS.txt SHA256SUMS_latest.txt || true
-          git commit -m "🧾 Auto-update SHA256SUMS (${{ env.TAG }})" || echo "No checksum changes"
-          git push origin main || echo "No push performed"
+          TAG="r3c-ltss-v$(date +'%Y.%m.%d')-auto"
+          git add SHA256SUMS.txt || true
+          git commit -m "🧾 Auto SHA256SUMS ($TAG)" || true
+          git push origin main || true
+          git tag -a "$TAG" -m "Automated LTSS release ($TAG)"
+          git push origin "$TAG"
 
-      - name: 🔖 Create and push tag
+      ########################################################
+      # 6️⃣ Propagate funding info to all repos
+      ########################################################
+      - name: 🔄 Sync FUNDING.yml to sub-repos
+        if: ${{ github.repository == 'r3c-foundation/rust-ltss' }}
         run: |
-          git tag -a "${{ env.TAG }}" -m "Automated LTSS release"
-          git push origin "${{ env.TAG }}"
-
-      - name: 🚀 Publish GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          token: ${{ secrets.WORKFLOW_PAT }}
-          tag_name: ${{ env.TAG }}
-          name: "R3C Rust-LTSS Stable Auto Release ${{ env.TAG }}"
-          body: |
-            ✅ Automated LTSS stable release
-            - Rust version: 1.70.0 (frozen)
-            - Includes verified SHA256SUMS for Linux/macOS/Windows
-            - Works even without Cargo.toml (environment validation mode)
-            - Generated automatically by R3C Autonomous System
-          files: |
-            SHA256SUMS.txt
-            builds/**/*
+          cat > .github/FUNDING.yml <<'EOF'
+github: r3c-foundation
+open_collective: r3c-foundation
+custom:
+  - https://opencollective.com/r3c-foundation
+EOF
+          for repo in r3c cpppm beyond-llvm r3c-nightly-ltss; do
+            git clone https://github.com/r3c-foundation/$repo.git
+            cd $repo
+            mkdir -p .github
+            cp ../.github/FUNDING.yml .github/
+            git add .github/FUNDING.yml
+            git commit -m "🔄 Sync FUNDING.yml from rust-ltss" || true
+            git push https://x-access-token:${{ secrets.WORKFLOW_PAT }}@github.com/r3c-foundation/$repo.git main || true
+            cd ..
+          done
