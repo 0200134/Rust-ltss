@@ -171,4 +171,22 @@ Check CONTRIBUTING.md for simple fork instructions
 
 Open an issue with the “💡 Fork Task” template to document your experiment
 
+## 💰 Sponsor the R3C Foundation
 
+The **R3C Foundation** is an open research and development collective dedicated to sustaining long-term compiler ecosystems — independent, transparent, and LLVM-free.
+
+Your support directly funds:
+- 🧩 Development of R3C, cpppm, and LTSS toolchains  
+- ⚙️ Continuous Integration and testing infrastructure  
+- 📚 Documentation, education, and community initiatives  
+- 🌍 Research toward a sustainable, compiler-sovereign ecosystem  
+
+Every contribution is **publicly visible and transparently managed** via [OpenCollective](https://opencollective.com/r3c-foundation).  
+You can view all donations and expenses in real-time.
+
+👉 **Sponsor now:**  
+🔗 [https://opencollective.com/r3c-foundation](https://opencollective.com/r3c-foundation)
+
+---
+
+> 💡 *R3C Foundation operates as an open and auditable collective — ensuring that every contribution fuels the next generation of compiler innovation.*
