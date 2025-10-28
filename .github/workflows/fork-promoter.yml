@@ -1,0 +1,46 @@
+name: 🌱 Fork Promoter Updater
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"  # 매주 월요일 02:00 UTC 자동 실행
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  promote-fork:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧭 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🪶 Setup Git identity
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: 🌟 Ensure Fork Section in README
+        run: |
+          if ! grep -q "Fork this repository" README.md; then
+            echo "🔧 Fork section not found. Appending now."
+            cat <<'EOF' >> README.md
+
+---
+
+## 🔧 Fork & Experiment
+
+Want to test your own deterministic LTSS build?  
+👉 [**Fork this repository**](https://github.com/${{ github.repository }}/fork)  
+and start from the `fork-lab` branch.
+
+[![Fork this repo](https://img.shields.io/badge/Fork%20on-GitHub-brightgreen?logo=github)](https://github.com/${{ github.repository }}/fork)
+
+---
+EOF
+          fi
+
+          git add README.md
+          git commit -m "🌱 Auto-update Fork section in README ($(date -u '+%Y-%m-%d'))" || echo "No changes to commit"
+          git push origin main || echo "No changes pushed"
