@@ -1,0 +1,48 @@
+name: 🔄 Fork-Lab Branch Maintainer
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"    # 매주 일요일 03:00 UTC에 자동 실행
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-fork-lab:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧭 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🪶 Setup Git identity
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: 🌿 Create or refresh fork-lab branch
+        run: |
+          if git show-ref --verify --quiet refs/heads/fork-lab; then
+            git checkout fork-lab
+          else
+            git checkout -b fork-lab
+          fi
+
+          echo "# 🧪 Fork Lab (Auto Reset Branch)" > README_FORK_LAB.md
+          echo "" >> README_FORK_LAB.md
+          echo "This branch resets weekly to provide a clean sandbox for community experiments." >> README_FORK_LAB.md
+          echo "- Last reset: $(date -u '+%Y-%m-%d %H:%M UTC')" >> README_FORK_LAB.md
+          echo "- Base branch: main" >> README_FORK_LAB.md
+          echo "" >> README_FORK_LAB.md
+          echo "Fork freely from this branch for tests, experiments, and CI verifications." >> README_FORK_LAB.md
+          echo "It will be auto-refreshed each week to maintain a clean state." >> README_FORK_LAB.md
+
+          git add README_FORK_LAB.md
+          git commit -m "🧪 Auto-refresh fork-lab branch ($(date -u '+%Y-%m-%d'))" || echo "No changes to commit"
+          git push origin fork-lab --force
+
+      - name: ✅ Confirm update
+        run: echo "fork-lab branch has been refreshed and ready for new forks."
