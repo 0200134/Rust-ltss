@@ -1,0 +1,103 @@
+name: 🧾 Auto Update CONTRIBUTING.md
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"   # 매주 월요일 02:00 UTC 자동 실행
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-contributing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧭 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🪶 Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: 🧾 Generate CONTRIBUTING.md
+        run: |
+          cat > CONTRIBUTING.md <<'EOF'
+# 🤝 Contributing to R3C Rust-LTSS
+
+Welcome to the **R3C Foundation LTSS ecosystem.**  
+We’re building a long-term, deterministic Rust toolchain for research and embedded systems.  
+You are encouraged to **fork, experiment, and submit pull requests** under the MIT License.
+
+---
+
+## 🌿 How to Fork and Contribute
+
+1. **Fork the repository**  
+   → [Fork on GitHub](https://github.com/r3c-foundation/rust-ltss/fork)
+
+2. **Select the sandbox branch**  
+   - Use the `fork-lab` branch for experiments.  
+   - This branch resets weekly to keep a clean testing environment.
+
+3. **Make your changes**  
+   - Improve docs (`/docs/`), workflows (`.github/`), or build scripts.  
+   - Add reproducibility examples or deterministic build tests.  
+   - Do **not** change the locked Rust version.
+
+4. **Commit and push**  
+   - Keep commits small and descriptive.  
+   - Example: \`git commit -m "🧩 add checksum validator for macOS"\`
+
+5. **Open a Pull Request**  
+   - Target branch: \`main\`  
+   - Link your PR to a “💡 Fork Task” issue if possible.  
+   - Include updated checksums (\`SHA256SUMS.txt\`) if you changed build output.
+
+---
+
+## ⚙️ Rules and Policies
+
+| Rule | Description |
+|------|--------------|
+| 🦀 **Rust version lock** | Rust 1.70.0 is permanent — do not update or override \`rust-toolchain.toml\`. |
+| 🔒 **Integrity required** | Verify builds and include checksum updates. |
+| 📦 **No external deps** | Avoid crates that force new toolchains or unstable APIs. |
+| 🧠 **Clarity first** | Keep code simple, auditable, and reproducible. |
+| 🧾 **MIT License** | All contributions are under MIT License unless stated otherwise. |
+
+---
+
+## 💡 Recommended Fork Ideas
+- Write deterministic build verification scripts.  
+- Add documentation for reproducibility testing.  
+- Integrate CI badges or cross-platform validation steps.  
+- Port LTSS checks to a new OS or architecture (e.g., ARM64).  
+- Extend the example set under \`/examples/\`.
+
+---
+
+## 🪶 Before You Submit
+- Run \`cargo fmt\` and \`cargo clippy\` if a Cargo project exists.  
+- Ensure all scripts execute cleanly on Linux, macOS, and Windows.  
+- Confirm \`SHA256SUMS.txt\` is up to date.  
+
+---
+
+## 📬 Support & Communication
+- **Issues:** Use “💡 Fork Task / Experiment” template for experiments.  
+- **Discussions:** Join or open threads under **Community → Discussions**.  
+- **Maintainers:** R3C-Foundation Core Team (autonomous review cycle via GitHub Actions)
+
+---
+
+> 🧩 *“Freeze once. Sustain forever.”*  
+> Every small contribution strengthens the long-term reliability of Rust toolchains.
+EOF
+
+      - name: 💾 Commit and push
+        run: |
+          git add CONTRIBUTING.md
+          git commit -m "🧾 Auto-update CONTRIBUTING.md ($(date -u '+%Y-%m-%d'))" || echo "No changes to commit"
+          git push origin main || echo "No push performed"
