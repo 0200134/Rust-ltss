@@ -117,3 +117,58 @@ MIT License © R3C-Foundation
 
 
 ---
+
+
+
+
+
+🌿 Fork & Experiment
+
+
+Interested in exploring deterministic Rust builds or testing LTSS behavior on your own platform?
+
+You’re welcome to fork this repository and start experimenting freely.
+
+
+👉 Fork on GitHub
+
+
+
+
+The fork-lab branch is refreshed weekly to provide a clean sandbox for experiments.
+
+You can submit your improvements through Pull Requests or share results in a “💡 Fork Task” issue.
+
+
+
+
+Why fork?
+
+
+
+
+🔬 Test deterministic builds across OSes
+
+
+🧩 Contribute to CI or checksum verification scripts
+
+
+📘 Add documentation or reproducibility studies
+
+
+🧠 Experiment with R3C compiler integration
+
+
+
+
+Start here:
+
+
+
+
+Check CONTRIBUTING.md for simple fork instructions
+
+
+Open an issue with the “💡 Fork Task” template to document your experiment
+
+
