@@ -1,0 +1,8 @@
+# ✅ R3C Foundation — Unified Funding Configuration
+# This setup routes all sponsorships through OpenCollective (nonprofit safe)
+# and optionally displays the GitHub Sponsors button if approved later.
+
+github: r3c-foundation          # Optional (when GitHub Sponsors approved)
+open_collective: r3c-foundation # Fiscal host managed, legal-safe
+custom:
+  - https://opencollective.com/r3c-foundation
